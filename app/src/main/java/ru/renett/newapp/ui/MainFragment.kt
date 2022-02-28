@@ -7,12 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import ru.renett.newapp.R
 
-class FirstFragment : Fragment() {
+class MainFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_first, container, false)
+        return inflater.inflate(R.layout.fragment_main, container, false)
     }
 }
