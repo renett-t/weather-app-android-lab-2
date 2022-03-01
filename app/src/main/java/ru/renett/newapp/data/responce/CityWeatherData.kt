@@ -11,7 +11,7 @@ data class CityWeatherData(
     val codeStatus: Int,
     @SerializedName("coord")
     val coordinates: Coordinates,
-    @SerializedName("name")
+    @SerializedName("main")
     val weatherInfo: WeatherInfo,
     @SerializedName("visibility")
     val visibility: Int,

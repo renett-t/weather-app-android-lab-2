@@ -16,7 +16,7 @@ interface OpenWeatherApi {
     suspend fun getWeatherInCity(@Query("q") city: String) : CityWeatherData
 
     @GET("data/2.5/weather")
-    suspend fun getWeatherInCityById(@Query("id") cityId: Long) : CityWeatherData
+    suspend fun getWeatherInCityById(@Query("id") cityId: Int) : CityWeatherData
 
 //    @GET("img/wn/{iconTitle}")
 //    suspend fun getIconByName(@Path("iconTitle") iconTitle: String) : File

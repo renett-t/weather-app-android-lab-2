@@ -1,76 +1,130 @@
 package ru.renett.newapp.ui
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.SearchView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.*
 import ru.renett.newapp.CITY_ID
 import ru.renett.newapp.R
+import ru.renett.newapp.data.WeatherRepository
 import ru.renett.newapp.data.responce.Coordinates
 import ru.renett.newapp.databinding.FragmentMainBinding
 import ru.renett.newapp.rv.CityAdapter
 import ru.renett.newapp.service.LocationService
 import ru.renett.newapp.service.WeatherService
 
-class MainFragment : Fragment() {
+class MainFragment : Fragment(R.layout.fragment_main) {
     private lateinit var binding: FragmentMainBinding
+
     private lateinit var weatherService: WeatherService
     private lateinit var locationService: LocationService
     private lateinit var coordinates: Coordinates
+    private lateinit var cityAdapter: CityAdapter
     private val cityCount = 10
 
-    private lateinit var cityAdapter: CityAdapter
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private val locationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
-                Log.e("PERMISSION", "GRANTED LOCATION")
                 coordinates = locationService.getCoordinates()
             } else {
                 coordinates = locationService.getDefaultCoordinates()
             }
-        }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentMainBinding.bind(inflater.inflate(R.layout.fragment_main, container, false))
-        return binding.root
-    }
+            updateRecyclerView()
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding = FragmentMainBinding.bind(view)
 
-        locationService = LocationService(context?.applicationContext)
-        requestLocationAccess()
+        initializeServices()
+        initSearchBar()
+    }
 
+    private fun initSearchBar() {
+        binding.searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextChange(newText: String): Boolean {
+                return false
+            }
+
+            override fun onQueryTextSubmit(query: String): Boolean {
+                showMessage("Wait! We're getting weather info for u! <3")
+                checkInputAndGetCity(query)
+                return false
+            }
+        })
+    }
+
+    private fun checkInputAndGetCity(newText: String) {
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                val cityWeatherData = weatherService.getWeatherInCityByName(newText)
+                cityWeatherData?.cityTitle?.let { showMessage(it) }
+
+                if (cityWeatherData != null) {
+                    withContext(Dispatchers.Main) {
+                        navigateToFragment(cityWeatherData.id)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun initializeServices() {
+        locationService = LocationService(requireContext())
+        weatherService = WeatherService(WeatherRepository)
         cityAdapter = CityAdapter { navigateToFragment(it) }
 
-        binding.rvCities.apply{
+        binding.rvCities.apply {
             adapter = cityAdapter
             addItemDecoration(DividerItemDecoration(requireContext(), RecyclerView.VERTICAL))
         }
-
-//        binding.searchBar.setOnQueryTextListener()
-
-        cityAdapter.submitList(weatherService.getWeatherInNearCities(coordinates, cityCount))
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!checkPermissionsGranted())
+            requestLocationAccess()
+    }
 
-    fun requestLocationAccess() {
+    override fun onResume() {
+        super.onResume()
+        coordinates = locationService.getCoordinates()
+        updateRecyclerView()
+    }
+
+    private fun requestLocationAccess() {
         locationPermissionLauncher.launch(
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION)
         )
+    }
+
+    private fun checkPermissionsGranted(): Boolean {
+        activity?.run {
+            return (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED)
+        }
+
+        return false
     }
 
     private fun navigateToFragment(id: Int) {
@@ -87,5 +141,24 @@ class MainFragment : Fragment() {
             bundle,
             options
         )
+    }
+
+    private fun showMessage(message: String) {
+        Snackbar.make(
+            requireActivity().findViewById(R.id.fragment_container),
+            message,
+            Snackbar.LENGTH_LONG
+        ).show()
+    }
+
+    private fun updateRecyclerView() {
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                val list = weatherService.getWeatherInNearCities(coordinates, cityCount)
+                withContext(Dispatchers.Main) {
+                    cityAdapter.submitList(list)
+                }
+            }
+        }
     }
 }

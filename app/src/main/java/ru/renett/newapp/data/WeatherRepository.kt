@@ -1,4 +1,4 @@
-package ru.renett.newapp.data;
+package ru.renett.newapp.data
 
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -9,12 +9,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ru.renett.newapp.BuildConfig
 import ru.renett.newapp.data.api.OpenWeatherApi
 import ru.renett.newapp.data.responce.CitiesWeatherData
-import ru.renett.newapp.data.responce.CityWeather
 import ru.renett.newapp.data.responce.CityWeatherData
 import ru.renett.newapp.data.responce.Coordinates
-import ru.renett.newapp.models.City
 
-private const val BASE_URL = "https://openweathermap.org/"
+private const val BASE_URL = "https://api.openweathermap.org/"
 private const val API_KEY = "c1c30fed56d3fe139b4e672c13e1bfac"
 private const val API_KEY_QUERY = "appid"
 private const val UNITS_VALUE = "metric"
@@ -64,8 +62,7 @@ object WeatherRepository {
             .create(OpenWeatherApi::class.java)
     }
 
-    // todo what if it returns error or null?
-    // todo - return only needed info, not response classes
+    // todo - return null|exception on error
     suspend fun getWeatherInNearCities(coordinates: Coordinates, cityCount: Int) : CitiesWeatherData {
         return api.getWeatherInNearCities(coordinates.lat, coordinates.lon, cityCount)
     }
@@ -74,11 +71,11 @@ object WeatherRepository {
         return api.getWeatherInCity(city)
     }
 
-    suspend fun getWeatherInCityById(id: Long) : CityWeatherData {
+    suspend fun getWeatherInCityById(id: Int) : CityWeatherData {
         return api.getWeatherInCityById(id)
     }
 
-    suspend fun getWeatherIconURL(iconTitle: String) : String {
-        return BASE_URL + "img/wn/${iconTitle}@4x.png"
+    fun getWeatherIconURL(iconTitle: String) : String {
+        return "https://openweathermap.org/img/wn/${iconTitle}@4x.png"
     }
 }
