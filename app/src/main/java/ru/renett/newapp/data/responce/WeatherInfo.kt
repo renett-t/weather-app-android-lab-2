@@ -1,12 +1,18 @@
 package ru.renett.newapp.data.responce
 
+import com.google.gson.annotations.SerializedName
+
 data class WeatherInfo(
-    val temp: Double,
-    val feels_like: Double,
-    val temp_min: Double,
-    val temp_max: Double,
+    @SerializedName("temp")
+    val temperature: Double,
+    @SerializedName("feels_like")
+    val feelsLike: Double,
+    @SerializedName("temp_min")
+    val tempMin: Double,
+    @SerializedName("temp_max")
+    val tempMax: Double,
+    @SerializedName("pressure")
     val pressure: Int,
+    @SerializedName("humidity")
     val humidity: Int,
-    val sea_level: Int,
-    val grnd_level: Int
 )

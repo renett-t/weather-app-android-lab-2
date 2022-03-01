@@ -1,6 +1,10 @@
 package ru.renett.newapp.data.responce
 
+import com.google.gson.annotations.SerializedName
+
 data class Wind(
-    val deg: Int,
+    @SerializedName("deg")
+    val degree: Int,
+    @SerializedName("speed")
     val speed: Double
 )

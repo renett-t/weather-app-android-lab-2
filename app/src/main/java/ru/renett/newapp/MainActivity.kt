@@ -3,6 +3,7 @@ package ru.renett.newapp
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 
+public const val CITY_ID = "city_id"
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

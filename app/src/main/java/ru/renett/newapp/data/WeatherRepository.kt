@@ -8,8 +8,11 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.renett.newapp.BuildConfig
 import ru.renett.newapp.data.api.OpenWeatherApi
-import ru.renett.newapp.data.responce.CitiesWeatherResponse
-import ru.renett.newapp.data.responce.CityWeatherResponse
+import ru.renett.newapp.data.responce.CitiesWeatherData
+import ru.renett.newapp.data.responce.CityWeather
+import ru.renett.newapp.data.responce.CityWeatherData
+import ru.renett.newapp.data.responce.Coordinates
+import ru.renett.newapp.models.City
 
 private const val BASE_URL = "https://openweathermap.org/"
 private const val API_KEY = "c1c30fed56d3fe139b4e672c13e1bfac"
@@ -17,7 +20,7 @@ private const val API_KEY_QUERY = "appid"
 private const val UNITS_VALUE = "metric"
 private const val UNITS_QUERY = "units"
 
-class WeatherRepository {
+object WeatherRepository {
 
     private val apiKeyInterceptor = Interceptor { chain ->
         createNewInterceptor(chain, API_KEY_QUERY, API_KEY)
@@ -63,15 +66,15 @@ class WeatherRepository {
 
     // todo what if it returns error or null?
     // todo - return only needed info, not response classes
-    suspend fun getWeatherInNearCities(latitude: Long, longitude: Long, cityCount: Int) : CitiesWeatherResponse {
-        return api.getWeatherInNearCities(latitude, longitude, cityCount)
+    suspend fun getWeatherInNearCities(coordinates: Coordinates, cityCount: Int) : CitiesWeatherData {
+        return api.getWeatherInNearCities(coordinates.lat, coordinates.lon, cityCount)
     }
 
-    suspend fun getWeatherInCityByName(city: String) : CityWeatherResponse {
+    suspend fun getWeatherInCityByName(city: String) : CityWeatherData {
         return api.getWeatherInCity(city)
     }
 
-    suspend fun getWeatherInCityById(id: Long) : CityWeatherResponse {
+    suspend fun getWeatherInCityById(id: Long) : CityWeatherData {
         return api.getWeatherInCityById(id)
     }
 
