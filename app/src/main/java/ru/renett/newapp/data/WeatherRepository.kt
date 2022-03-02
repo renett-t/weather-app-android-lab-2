@@ -62,17 +62,28 @@ object WeatherRepository {
             .create(OpenWeatherApi::class.java)
     }
 
-    // todo - return null|exception on error
-    suspend fun getWeatherInNearCities(coordinates: Coordinates, cityCount: Int) : CitiesWeatherData {
-        return api.getWeatherInNearCities(coordinates.lat, coordinates.lon, cityCount)
+    suspend fun getWeatherInNearCities(coordinates: Coordinates, cityCount: Int) : CitiesWeatherData? {
+        return try {
+            api.getWeatherInNearCities(coordinates.lat, coordinates.lon, cityCount)
+        } catch (e: Exception) {
+            null
+        }
     }
 
-    suspend fun getWeatherInCityByName(city: String) : CityWeatherData {
-        return api.getWeatherInCity(city)
+    suspend fun getWeatherInCityByName(city: String) : CityWeatherData? {
+        return try {
+            api.getWeatherInCity(city)
+        } catch (e: Exception) {
+            null
+        }
     }
 
-    suspend fun getWeatherInCityById(id: Int) : CityWeatherData {
-        return api.getWeatherInCityById(id)
+    suspend fun getWeatherInCityById(id: Int) : CityWeatherData? {
+        return try {
+            api.getWeatherInCityById(id)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     fun getWeatherIconURL(iconTitle: String) : String {

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
 import ru.renett.newapp.CITY_ID
 import ru.renett.newapp.R
@@ -47,7 +48,7 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
             withContext(Dispatchers.Main) {
                 citiWeather?.let {
                     initializeView(it)
-                }
+                } ?: showMessage("Sorry, unable to get information.")
             }
         }
     }
@@ -74,5 +75,13 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
             tvWindSpeed.text = "${citiWeather.wind.speed} m/s"
             tvWindDirection.text = windConverter.convertDegreeToDirection(citiWeather.wind.degree)
         }
+    }
+
+    private fun showMessage(message: String) {
+        Snackbar.make(
+            requireActivity().findViewById(R.id.fragment_container),
+            message,
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 }

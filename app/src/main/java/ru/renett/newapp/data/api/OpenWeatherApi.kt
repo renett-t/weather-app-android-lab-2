@@ -17,10 +17,4 @@ interface OpenWeatherApi {
 
     @GET("data/2.5/weather")
     suspend fun getWeatherInCityById(@Query("id") cityId: Int) : CityWeatherData
-
-//    @GET("img/wn/{iconTitle}")
-//    suspend fun getIconByName(@Path("iconTitle") iconTitle: String) : File
-//      https://openweathermap.org/img/wn/10d@2x.png
-
-
 }

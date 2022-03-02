@@ -13,7 +13,8 @@ private const val DEFAULT_LONGITUDE = 49.143041
 
 class LocationService(applicationContext: Context) {
 
-    private val locationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(applicationContext)
+    private val locationClient: FusedLocationProviderClient =
+        LocationServices.getFusedLocationProviderClient(applicationContext)
     private var coordinates: Coordinates = getDefaultCoordinates()
 
     @SuppressLint("MissingPermission")

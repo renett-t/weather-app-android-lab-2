@@ -36,7 +36,8 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
     private val locationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
+            if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+                || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
                 coordinates = locationService.getCoordinates()
             } else {
                 coordinates = locationService.getDefaultCoordinates()
@@ -71,12 +72,13 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         scope.launch {
             withContext(Dispatchers.IO) {
                 val cityWeatherData = weatherService.getWeatherInCityByName(newText)
-                cityWeatherData?.cityTitle?.let { showMessage(it) }
 
                 if (cityWeatherData != null) {
                     withContext(Dispatchers.Main) {
                         navigateToFragment(cityWeatherData.id)
                     }
+                } else {
+                    showMessage("No weather info about '${newText}' found")
                 }
             }
         }
@@ -93,14 +95,10 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (!checkPermissionsGranted())
-            requestLocationAccess()
-    }
-
     override fun onResume() {
         super.onResume()
+        if (!checkPermissionsGranted())
+            requestLocationAccess()
         coordinates = locationService.getCoordinates()
         updateRecyclerView()
     }
@@ -156,6 +154,9 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             withContext(Dispatchers.IO) {
                 val list = weatherService.getWeatherInNearCities(coordinates, cityCount)
                 withContext(Dispatchers.Main) {
+                    if (list.isEmpty()) {
+                        showMessage("Problem with retrieving weather in near cities.")
+                    }
                     cityAdapter.submitList(list)
                 }
             }

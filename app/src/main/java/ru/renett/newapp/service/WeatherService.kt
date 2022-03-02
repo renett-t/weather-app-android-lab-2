@@ -27,11 +27,11 @@ class WeatherService(
         return cities
     }
 
-    suspend fun getWeatherInCityByName(city: String) : CityWeatherData {
+    suspend fun getWeatherInCityByName(city: String) : CityWeatherData? {
         return weatherRepository.getWeatherInCityByName(city)
     }
 
-    suspend fun getWeatherInCityById(id: Int) : CityWeatherData {
+    suspend fun getWeatherInCityById(id: Int) : CityWeatherData? {
        return weatherRepository.getWeatherInCityById(id)
     }
 

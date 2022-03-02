@@ -50,7 +50,9 @@ class CityHolder (
 
     companion object {
         fun create(parent: ViewGroup, onItemChosenAction: (Int) -> Unit) : CityHolder {
-            return CityHolder(ItemCityBinding.inflate(LayoutInflater.from(parent.context), parent, false), onItemChosenAction)
+            return CityHolder(ItemCityBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false),
+                onItemChosenAction)
         }
     }
 
