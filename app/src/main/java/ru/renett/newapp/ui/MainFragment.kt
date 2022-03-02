@@ -132,6 +132,10 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
         val options = NavOptions.Builder()
             .setLaunchSingleTop(true)
+            .setEnterAnim(R.anim.enter_from_right)
+            .setExitAnim(R.anim.fade_out)
+            .setPopEnterAnim(R.anim.fade_in)
+            .setPopExitAnim(R.anim.exit_to_right)
             .build()
 
         findNavController().navigate(
