@@ -1,12 +1,15 @@
 package ru.renett.newapp.ui
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
 import ru.renett.newapp.CITY_ID
+import ru.renett.newapp.MainActivity
 import ru.renett.newapp.R
 import ru.renett.newapp.data.WeatherRepository
 import ru.renett.newapp.data.responce.CityWeatherData
@@ -37,9 +40,29 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentWeatherDetailsBinding.bind(view)
-        val cityId = arguments?.get(CITY_ID)
+    }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+        (activity as MainActivity).supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+        }
+
+        val cityId = arguments?.get(CITY_ID)
         getWeatherInfoByCityId(cityId as Int)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            android.R.id.home -> navigateToPreviousFragment()
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun navigateToPreviousFragment(): Boolean {
+        findNavController().popBackStack()
+        return true
     }
 
     private fun getWeatherInfoByCityId(cityId: Int) {
