@@ -3,11 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/firstFragment">
+    app:startDestination="@id/mainFragment">
 
     <fragment
-        android:id="@+id/firstFragment"
-        android:name="ru.renett.newapp.ui.FirstFragment"
-        android:label="fragment_first"
-        tools:layout="@layout/fragment_first" />
+        android:id="@+id/mainFragment"
+        android:name="ru.renett.newapp.ui.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_weatherDetailsFragment2"
+            app:destination="@id/weatherDetailsFragment2" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/weatherDetailsFragment2"
+        android:name="ru.renett.newapp.ui.WeatherDetailsFragment"
+        android:label="WeatherDetailsFragment"
+        tools:layout="@layout/fragment_weather_details"/>
 </navigation>
