@@ -1,14 +1,14 @@
-package ru.renett.newapp.data.responce
+package ru.renett.newapp.data.response
 
 import com.google.gson.annotations.SerializedName
 
-data class CitiesWeatherData(
+data class CitiesWeatherResponse(
     @SerializedName("cod")
     val codeStatus: String,
     @SerializedName("count")
     val count: Int,
     @SerializedName("list")
-    val listOfCitiesWeather: List<CityWeather>,
+    val listOfCitiesWeather: List<CityWeatherData>,
     @SerializedName("message")
     val message: String
 )

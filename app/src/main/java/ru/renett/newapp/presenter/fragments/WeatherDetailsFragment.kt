@@ -1,4 +1,4 @@
-package ru.renett.newapp.ui
+package ru.renett.newapp.presenter.fragments
 
 import android.os.Bundle
 import android.view.MenuItem
@@ -8,15 +8,16 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
-import ru.renett.newapp.CITY_ID
-import ru.renett.newapp.MainActivity
 import ru.renett.newapp.R
-import ru.renett.newapp.data.WeatherRepository
-import ru.renett.newapp.data.responce.CityWeatherData
+import ru.renett.newapp.data.WeatherRepositoryImpl
+import ru.renett.newapp.data.mapper.CityWeatherMapperImpl
 import ru.renett.newapp.databinding.FragmentWeatherDetailsBinding
-import ru.renett.newapp.service.DateConverter
-import ru.renett.newapp.service.WeatherService
-import ru.renett.newapp.service.WindDirectionConverter
+import ru.renett.newapp.domain.usecases.DateConverter
+import ru.renett.newapp.data.service.WeatherService
+import ru.renett.newapp.domain.usecases.WindDirectionConverter
+import ru.renett.newapp.domain.models.CityDetailedWeather
+import ru.renett.newapp.presenter.MainActivity
+import ru.renett.newapp.presenter.CITY_ID
 import java.util.*
 import java.util.Locale.ENGLISH
 
@@ -24,7 +25,7 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val weatherService: WeatherService by lazy {
-        WeatherService(WeatherRepository)
+        WeatherService(WeatherRepositoryImpl, CityWeatherMapperImpl())
     }
 
     private val windConverter: WindDirectionConverter by lazy {
@@ -76,15 +77,15 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
         }
     }
 
-    private fun initializeView(citiWeather: CityWeatherData) {
+    private fun initializeView(city: CityDetailedWeather) {
         with(binding) {
-            tvCity.text = citiWeather.cityTitle
+            tvCity.text = city.name
             tvDate.text = dateConverter.convertDateToPrettyString(GregorianCalendar.getInstance(ENGLISH))
-            tvTemperature.text = "${citiWeather.weatherInfo.temperature}°"
-            tvWeatherState.text = citiWeather.weatherState[0].stateTitle
+            tvTemperature.text = "${city.temperature}°"
+            tvWeatherState.text = city.weatherState
 
             scope.launch {
-                val url = weatherService.getWeatherIconURL(citiWeather.weatherState[0].icon)
+                val url = weatherService.getWeatherIconURL(city.icon)
                 withContext(Dispatchers.Main) {
                     Glide.with(requireContext()).load(url)
                         .centerCrop()
@@ -92,11 +93,11 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
                 }
             }
 
-            tvFeelsLike.text = "${citiWeather.weatherInfo.feelsLike}°"
-            tvPressure.text = "${citiWeather.weatherInfo.pressure} hPa"
-            tvHumidity.text = "${citiWeather.weatherInfo.humidity} %"
-            tvWindSpeed.text = "${citiWeather.wind.speed} m/s"
-            tvWindDirection.text = windConverter.convertDegreeToDirection(citiWeather.wind.degree)
+            tvFeelsLike.text = "${city.feelsLike}°"
+            tvPressure.text = "${city.pressure} hPa"
+            tvHumidity.text = "${city.humidity} %"
+            tvWindSpeed.text = "${city.windSpeed} m/s"
+            tvWindDirection.text = windConverter.convertDegreeToDirection(city.windDegree)
         }
     }
 

@@ -1,4 +1,4 @@
-package ru.renett.newapp.rv
+package ru.renett.newapp.presenter.rv
 
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -6,14 +6,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.renett.newapp.databinding.ItemCityBinding
-import ru.renett.newapp.models.City
+import ru.renett.newapp.domain.models.CitySimpleWeather
 
 class CityHolder (
     private val binding: ItemCityBinding,
     private val onItemChosenAction: (Int) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    private var city: City? = null
+    private var city: CitySimpleWeather? = null
 
     init {
         itemView.setOnClickListener {
@@ -23,13 +23,13 @@ class CityHolder (
         }
     }
 
-    fun bind(city: City): Unit {
+    fun bind(city: CitySimpleWeather): Unit {
         this.city = city
         with(binding) {
             tvCity.text = city.name
             tvTemperature.setTextColor(getColorDependingOnDegree(city.temperature))
             tvTemperature.text = city.temperature.toString()
-            Glide.with(itemView).load(city.iconUrl)
+            Glide.with(itemView).load(city.icon)
                 .centerCrop()
                 .into(ivWeatherIcon)
         }

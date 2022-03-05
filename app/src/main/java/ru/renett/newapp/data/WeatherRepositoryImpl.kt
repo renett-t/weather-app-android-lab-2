@@ -8,9 +8,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.renett.newapp.BuildConfig
 import ru.renett.newapp.data.api.OpenWeatherApi
-import ru.renett.newapp.data.responce.CitiesWeatherData
-import ru.renett.newapp.data.responce.CityWeatherData
-import ru.renett.newapp.data.responce.Coordinates
+import ru.renett.newapp.data.response.CitiesWeatherResponse
+import ru.renett.newapp.data.response.CityWeatherResponse
 
 private const val BASE_URL = "https://api.openweathermap.org/"
 private const val API_KEY = "c1c30fed56d3fe139b4e672c13e1bfac"
@@ -18,7 +17,7 @@ private const val API_KEY_QUERY = "appid"
 private const val UNITS_VALUE = "metric"
 private const val UNITS_QUERY = "units"
 
-object WeatherRepository {
+object WeatherRepositoryImpl : OpenWeatherApi {
 
     private val apiKeyInterceptor = Interceptor { chain ->
         createNewInterceptor(chain, API_KEY_QUERY, API_KEY)
@@ -62,31 +61,23 @@ object WeatherRepository {
             .create(OpenWeatherApi::class.java)
     }
 
-    suspend fun getWeatherInNearCities(coordinates: Coordinates, cityCount: Int) : CitiesWeatherData? {
-        return try {
-            api.getWeatherInNearCities(coordinates.lat, coordinates.lon, cityCount)
-        } catch (e: Exception) {
-            null
-        }
+    override suspend fun getWeatherInNearCities(
+        latitude: Double,
+        longitude: Double,
+        count: Int
+    ): CitiesWeatherResponse {
+        return api.getWeatherInNearCities(latitude, longitude, count)
     }
 
-    suspend fun getWeatherInCityByName(city: String) : CityWeatherData? {
-        return try {
-            api.getWeatherInCity(city)
-        } catch (e: Exception) {
-            null
-        }
+    override suspend fun getWeatherInCityByName(city: String) : CityWeatherResponse {
+        return api.getWeatherInCityByName(city)
     }
 
-    suspend fun getWeatherInCityById(id: Int) : CityWeatherData? {
-        return try {
-            api.getWeatherInCityById(id)
-        } catch (e: Exception) {
-            null
-        }
+    override suspend fun getWeatherInCityById(cityId: Int) : CityWeatherResponse {
+        return api.getWeatherInCityById(cityId)
     }
 
-    fun getWeatherIconURL(iconTitle: String) : String {
+    override fun getWeatherIconURL(iconTitle: String) : String {
         return "https://openweathermap.org/img/wn/${iconTitle}@4x.png"
     }
 }

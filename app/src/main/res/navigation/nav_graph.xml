@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="ru.renett.newapp.ui.MainFragment"
+        android:name="ru.renett.newapp.presenter.fragments.MainFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_main" >
         <action
@@ -17,7 +17,7 @@
 
     <fragment
         android:id="@+id/weatherDetailsFragment2"
-        android:name="ru.renett.newapp.ui.WeatherDetailsFragment"
+        android:name="ru.renett.newapp.presenter.fragments.WeatherDetailsFragment"
         android:label="WeatherDetailsFragment"
         tools:layout="@layout/fragment_weather_details"/>
 </navigation>

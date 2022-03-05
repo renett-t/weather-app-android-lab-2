@@ -1,4 +1,4 @@
-package ru.renett.newapp.data.responce
+package ru.renett.newapp.data.response
 
 import com.google.gson.annotations.SerializedName
 

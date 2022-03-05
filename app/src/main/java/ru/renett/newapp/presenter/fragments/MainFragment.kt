@@ -1,4 +1,4 @@
-package ru.renett.newapp.ui
+package ru.renett.newapp.presenter.fragments
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -14,14 +14,15 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
-import ru.renett.newapp.CITY_ID
+import ru.renett.newapp.presenter.CITY_ID
 import ru.renett.newapp.R
-import ru.renett.newapp.data.WeatherRepository
-import ru.renett.newapp.data.responce.Coordinates
+import ru.renett.newapp.data.WeatherRepositoryImpl
+import ru.renett.newapp.data.mapper.CityWeatherMapperImpl
+import ru.renett.newapp.domain.models.Coordinates
 import ru.renett.newapp.databinding.FragmentMainBinding
-import ru.renett.newapp.rv.CityAdapter
-import ru.renett.newapp.service.LocationService
-import ru.renett.newapp.service.WeatherService
+import ru.renett.newapp.presenter.rv.CityAdapter
+import ru.renett.newapp.data.service.LocationService
+import ru.renett.newapp.data.service.WeatherService
 
 class MainFragment : Fragment(R.layout.fragment_main) {
     private lateinit var binding: FragmentMainBinding
@@ -85,8 +86,9 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     }
 
     private fun initializeServices() {
+        // todo WTF
         locationService = LocationService(requireContext())
-        weatherService = WeatherService(WeatherRepository)
+        weatherService = WeatherService(WeatherRepositoryImpl, CityWeatherMapperImpl())
         cityAdapter = CityAdapter { navigateToFragment(it) }
 
         binding.rvCities.apply {
@@ -160,6 +162,10 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                 withContext(Dispatchers.Main) {
                     if (list.isEmpty()) {
                         showMessage("Problem with retrieving weather in near cities.")
+                    }
+
+                    for (item in list) {
+                        item.icon = weatherService.getWeatherIconURL(item.icon)
                     }
                     cityAdapter.submitList(list)
                 }
