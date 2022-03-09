@@ -1,3 +1,18 @@
 <resources>
-    <string name="app_name">NewApp</string>
+    <string name="app_name">Weatherify</string>
+    <string name="test_city_title">Kazan</string>
+    <string name="test_temperature_value">-7°</string>
+    <string name="weather_icon">Weather icon</string>
+    <string name="feels_like">feels like</string>
+    <string name="test_feels_like_temp">-10°</string>
+    <string name="test_date">28 Feb, Monday</string>
+    <string name="test_weather_state">Snow</string>
+    <string name="pressure">pressure:</string>
+    <string name="test_pressure_value">249</string>
+    <string name="humidity">humidity:</string>
+    <string name="test_humidity_value">98</string>
+    <string name="wind_speed">wind speed:</string>
+    <string name="test_wind_speed">3.74</string>
+    <string name="wind_direction">wind direction:</string>
+    <string name="test_wind_direction">north</string>
 </resources>

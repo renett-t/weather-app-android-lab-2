@@ -1,4 +1,4 @@
-package ru.renett.newapp.ext
+package ru.renett.newapp.presentation.ext
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
