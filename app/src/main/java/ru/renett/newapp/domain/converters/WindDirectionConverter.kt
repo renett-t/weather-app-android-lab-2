@@ -1,8 +1,7 @@
-package ru.renett.newapp.domain.usecases
+package ru.renett.newapp.domain.converters
 
 class WindDirectionConverter {
 
-    // todo: write cool algorithm, not that strange code
     fun convertDegreeToDirection(degree: Double): String {
         return when (degree) {
             in 0.0..22.5 -> Direction.NORTH.direction

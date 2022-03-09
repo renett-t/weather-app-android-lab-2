@@ -1,4 +1,4 @@
-package ru.renett.newapp.domain.usecases
+package ru.renett.newapp.domain.converters
 
 import java.text.SimpleDateFormat
 import java.util.*

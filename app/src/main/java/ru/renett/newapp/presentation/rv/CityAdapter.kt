@@ -1,4 +1,4 @@
-package ru.renett.newapp.presenter.rv
+package ru.renett.newapp.presentation.rv
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -21,7 +21,9 @@ class CityAdapter (
 }
 
 class CityDiffUtilItemCallback : DiffUtil.ItemCallback<CitySimpleWeather>() {
-    override fun areItemsTheSame(oldItem: CitySimpleWeather, newItem: CitySimpleWeather): Boolean = oldItem.id == newItem.id
+    override fun areItemsTheSame(oldItem: CitySimpleWeather, newItem: CitySimpleWeather)
+        = oldItem.id == newItem.id
 
-    override fun areContentsTheSame(oldItem: CitySimpleWeather, newItem: CitySimpleWeather): Boolean = oldItem == newItem
+    override fun areContentsTheSame(oldItem: CitySimpleWeather, newItem: CitySimpleWeather)
+        = oldItem == newItem
 }

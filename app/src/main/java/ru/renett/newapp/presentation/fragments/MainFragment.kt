@@ -1,4 +1,4 @@
-package ru.renett.newapp.presenter.fragments
+package ru.renett.newapp.presentation.fragments
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -14,21 +14,26 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
-import ru.renett.newapp.presenter.CITY_ID
 import ru.renett.newapp.R
-import ru.renett.newapp.data.WeatherRepositoryImpl
-import ru.renett.newapp.data.mapper.CityWeatherMapperImpl
-import ru.renett.newapp.domain.models.Coordinates
 import ru.renett.newapp.databinding.FragmentMainBinding
-import ru.renett.newapp.presenter.rv.CityAdapter
-import ru.renett.newapp.data.service.LocationService
-import ru.renett.newapp.data.service.WeatherService
+import ru.renett.newapp.domain.usecases.location.GetLocationUseCase
+import ru.renett.newapp.domain.usecases.weather.GetSimpleWeatherForCitiesUseCase
+import ru.renett.newapp.data.mapper.CityWeatherMapperImpl
+import ru.renett.newapp.data.repositories.LocationRepositoryImpl
+import ru.renett.newapp.data.repositories.WeatherRepositoryImpl
+import ru.renett.newapp.domain.models.Coordinates
+import ru.renett.newapp.domain.usecases.weather.*
+import ru.renett.newapp.presentation.MainActivity
+import ru.renett.newapp.presentation.rv.CityAdapter
 
 class MainFragment : Fragment(R.layout.fragment_main) {
     private lateinit var binding: FragmentMainBinding
 
-    private lateinit var weatherService: WeatherService
-    private lateinit var locationService: LocationService
+    private lateinit var getCitiesWeather: GetSimpleWeatherForCitiesUseCase
+    private lateinit var getWeatherIcon: GetWeatherIconUseCase
+    private lateinit var getCityWeatherByName: GetWeatherByNameUseCase
+
+    private lateinit var getLocation: GetLocationUseCase
     private lateinit var coordinates: Coordinates
     private lateinit var cityAdapter: CityAdapter
     private val cityCount = 10
@@ -36,21 +41,17 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private val locationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
-                || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
-                coordinates = locationService.getCoordinates()
-            } else {
-                coordinates = locationService.getDefaultCoordinates()
-            }
-
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { _ ->
+            getLocation()
             updateRecyclerView()
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMainBinding.bind(view)
-
+        (activity as MainActivity).supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(false)
+        }
         initializeServices()
         initSearchBar()
     }
@@ -72,7 +73,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     private fun checkInputAndGetCity(newText: String) {
         scope.launch {
             withContext(Dispatchers.IO) {
-                val cityWeatherData = weatherService.getWeatherInCityByName(newText)
+                val cityWeatherData = getCityWeatherByName(newText)
 
                 if (cityWeatherData != null) {
                     withContext(Dispatchers.Main) {
@@ -85,10 +86,13 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         }
     }
 
-    private fun initializeServices() {
-        // todo WTF
-        locationService = LocationService(requireContext())
-        weatherService = WeatherService(WeatherRepositoryImpl, CityWeatherMapperImpl())
+    private fun initializeServices() {                 // instead of this should be di-container & ui-delegates
+        getLocation = GetLocationUseCase(LocationRepositoryImpl(requireContext()))
+        val weatherRepository = WeatherRepositoryImpl(CityWeatherMapperImpl())
+        getCitiesWeather = GetSimpleWeatherForCitiesUseCase(weatherRepository)
+        getWeatherIcon = GetWeatherIconUseCase(weatherRepository)
+        getCityWeatherByName = GetWeatherByNameUseCase(weatherRepository)
+
         cityAdapter = CityAdapter { navigateToFragment(it) }
 
         binding.rvCities.apply {
@@ -101,7 +105,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         super.onResume()
         if (!checkPermissionsGranted())
             requestLocationAccess()
-        coordinates = locationService.getCoordinates()
+        coordinates = getLocation()
         updateRecyclerView()
     }
 
@@ -158,14 +162,14 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     private fun updateRecyclerView() {
         scope.launch {
             withContext(Dispatchers.IO) {
-                val list = weatherService.getWeatherInNearCities(coordinates, cityCount)
+                val list = getCitiesWeather(coordinates, cityCount)
                 withContext(Dispatchers.Main) {
                     if (list.isEmpty()) {
                         showMessage("Problem with retrieving weather in near cities.")
                     }
 
                     for (item in list) {
-                        item.icon = weatherService.getWeatherIconURL(item.icon)
+                        item.icon = getWeatherIcon(item.icon)
                     }
                     cityAdapter.submitList(list)
                 }

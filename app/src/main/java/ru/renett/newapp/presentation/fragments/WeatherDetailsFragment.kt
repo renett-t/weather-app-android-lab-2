@@ -1,4 +1,4 @@
-package ru.renett.newapp.presenter.fragments
+package ru.renett.newapp.presentation.fragments
 
 import android.os.Bundle
 import android.view.MenuItem
@@ -9,24 +9,24 @@ import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
 import ru.renett.newapp.R
-import ru.renett.newapp.data.WeatherRepositoryImpl
 import ru.renett.newapp.data.mapper.CityWeatherMapperImpl
+import ru.renett.newapp.data.repositories.WeatherRepositoryImpl
 import ru.renett.newapp.databinding.FragmentWeatherDetailsBinding
-import ru.renett.newapp.domain.usecases.DateConverter
-import ru.renett.newapp.data.service.WeatherService
-import ru.renett.newapp.domain.usecases.WindDirectionConverter
+import ru.renett.newapp.domain.converters.DateConverter
+import ru.renett.newapp.domain.converters.WindDirectionConverter
 import ru.renett.newapp.domain.models.CityDetailedWeather
-import ru.renett.newapp.presenter.MainActivity
-import ru.renett.newapp.presenter.CITY_ID
+import ru.renett.newapp.domain.usecases.weather.GetWeatherByIdUseCase
+import ru.renett.newapp.domain.usecases.weather.GetWeatherIconUseCase
+import ru.renett.newapp.presentation.MainActivity
 import java.util.*
 import java.util.Locale.ENGLISH
 
+const val CITY_ID = "city_id"
 class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private val weatherService: WeatherService by lazy {
-        WeatherService(WeatherRepositoryImpl, CityWeatherMapperImpl())
-    }
+    private lateinit var getCityWeatherById: GetWeatherByIdUseCase
+    private lateinit var getWeatherIcon: GetWeatherIconUseCase
 
     private val windConverter: WindDirectionConverter by lazy {
         WindDirectionConverter()
@@ -38,9 +38,16 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
 
     private lateinit var binding: FragmentWeatherDetailsBinding
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentWeatherDetailsBinding.bind(view)
+    }
+
+    private fun initializeServices() {
+        val weatherRepository = WeatherRepositoryImpl(CityWeatherMapperImpl())
+        getCityWeatherById = GetWeatherByIdUseCase(weatherRepository)
+        getWeatherIcon = GetWeatherIconUseCase(weatherRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +56,7 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
         (activity as MainActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
         }
+        initializeServices()
 
         val cityId = arguments?.get(CITY_ID)
         getWeatherInfoByCityId(cityId as Int)
@@ -68,7 +76,7 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
 
     private fun getWeatherInfoByCityId(cityId: Int) {
         scope.launch {
-            val citiWeather = weatherService.getWeatherInCityById(cityId)
+            val citiWeather = getCityWeatherById(cityId)
             withContext(Dispatchers.Main) {
                 citiWeather?.let {
                     initializeView(it)
@@ -85,7 +93,7 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
             tvWeatherState.text = city.weatherState
 
             scope.launch {
-                val url = weatherService.getWeatherIconURL(city.icon)
+                val url = getWeatherIcon(city.icon)
                 withContext(Dispatchers.Main) {
                     Glide.with(requireContext()).load(url)
                         .centerCrop()

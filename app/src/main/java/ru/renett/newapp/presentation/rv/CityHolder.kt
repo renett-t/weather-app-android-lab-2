@@ -1,4 +1,4 @@
-package ru.renett.newapp.presenter.rv
+package ru.renett.newapp.presentation.rv
 
 import android.graphics.Color
 import android.view.LayoutInflater
