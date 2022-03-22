@@ -4,7 +4,7 @@ data class CityDetailedWeather (
     val id: Int,
     val name: String,
     val temperature: Double,
-    val icon: String,
+    var icon: String,
     val feelsLike: Double,
     val weatherState: String,
     val pressure: Int,
