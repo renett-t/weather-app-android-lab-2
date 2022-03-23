@@ -3,17 +3,18 @@ package ru.renett.newapp.presentation.fragments
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.SearchView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.*
 import ru.renett.newapp.R
 import ru.renett.newapp.databinding.FragmentMainBinding
 import ru.renett.newapp.domain.usecases.location.GetLocationUseCase
@@ -25,25 +26,22 @@ import ru.renett.newapp.domain.models.Coordinates
 import ru.renett.newapp.domain.usecases.weather.*
 import ru.renett.newapp.presentation.MainActivity
 import ru.renett.newapp.presentation.rv.CityAdapter
+import ru.renett.newapp.presentation.viewmodels.MainViewModel
+import ru.renett.newapp.presentation.viewmodels.ViewModelFactory
 
 class MainFragment : Fragment(R.layout.fragment_main) {
     private lateinit var binding: FragmentMainBinding
 
-    private lateinit var getCitiesWeather: GetSimpleWeatherForCitiesUseCase
-    private lateinit var getWeatherIcon: GetWeatherIconUseCase
-    private lateinit var getCityWeatherByName: GetWeatherByNameUseCase
+    private lateinit var viewModel: MainViewModel
 
-    private lateinit var getLocation: GetLocationUseCase
     private lateinit var coordinates: Coordinates
     private lateinit var cityAdapter: CityAdapter
     private val cityCount = 10
 
-    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-
     private val locationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { _ ->
-            getLocation()
-            updateRecyclerView()
+            viewModel.requestLocation()
+            viewModel.requestCitiesWeather(coordinates, cityCount)
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,7 +50,9 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         (activity as MainActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(false)
         }
+
         initializeServices()
+        initObservers()
         initSearchBar()
     }
 
@@ -71,27 +71,45 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     }
 
     private fun checkInputAndGetCity(newText: String) {
-        scope.launch {
-            withContext(Dispatchers.IO) {
-                val cityWeatherData = getCityWeatherByName(newText)
+        viewModel.requestCityWeatherByName(newText)
+    }
 
-                if (cityWeatherData != null) {
-                    withContext(Dispatchers.Main) {
-                        navigateToFragment(cityWeatherData.id)
-                    }
-                } else {
-                    showMessage("No weather info about '${newText}' found")
-                }
+    private fun initObservers() {
+        viewModel.location.observe(viewLifecycleOwner) {
+            it.fold(onSuccess = { coordinatesResult ->
+                coordinates = coordinatesResult
+            }, onFailure = {
+                Log.e("Location", "Unable to get location")
+            })
+        }
+        viewModel.citiesWeather.observe(viewLifecycleOwner) {
+            it.fold(onSuccess = { list ->
+                cityAdapter.submitList(list)
+            }, onFailure = {
+                showMessage("Problem with retrieving weather in near cities.")
+            })
+        }
+        viewModel.cityWeather.observe(viewLifecycleOwner) {
+            if (it != null) {
+                it.fold(onSuccess = { cityWeather ->
+                    navigateToFragment(cityWeather.id)
+                }, onFailure = { ex ->
+                    ex.message?.let { it1 -> showMessage(it1) }
+                })
             }
         }
     }
 
-    private fun initializeServices() {                 // instead of this should be di-container & ui-delegates
-        getLocation = GetLocationUseCase(LocationRepositoryImpl(requireContext()))
+    private fun initializeServices() {                 // instead of this should be di-container
         val weatherRepository = WeatherRepositoryImpl(CityWeatherMapperImpl())
-        getCitiesWeather = GetSimpleWeatherForCitiesUseCase(weatherRepository)
-        getWeatherIcon = GetWeatherIconUseCase(weatherRepository)
-        getCityWeatherByName = GetWeatherByNameUseCase(weatherRepository)
+        val factory = ViewModelFactory(
+            GetSimpleWeatherForCitiesUseCase(weatherRepository),
+            GetWeatherByNameUseCase(weatherRepository),
+            GetLocationUseCase(LocationRepositoryImpl(requireContext())),
+            GetWeatherByIdUseCase(weatherRepository),
+            GetWeatherIconUseCase(weatherRepository)
+        )
+        viewModel = ViewModelProvider(this, factory)[MainViewModel::class.java]
 
         cityAdapter = CityAdapter { navigateToFragment(it) }
 
@@ -105,8 +123,8 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         super.onResume()
         if (!checkPermissionsGranted())
             requestLocationAccess()
-        coordinates = getLocation()
-        updateRecyclerView()
+        viewModel.requestLocation()
+        viewModel.requestCitiesWeather(coordinates, cityCount)
     }
 
     private fun requestLocationAccess() {
@@ -155,25 +173,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         Snackbar.make(
             requireActivity().findViewById(R.id.fragment_container),
             message,
-            Snackbar.LENGTH_LONG
+            Snackbar.LENGTH_SHORT
         ).show()
-    }
-
-    private fun updateRecyclerView() {
-        scope.launch {
-            withContext(Dispatchers.IO) {
-                val list = getCitiesWeather(coordinates, cityCount)
-                withContext(Dispatchers.Main) {
-                    if (list.isEmpty()) {
-                        showMessage("Problem with retrieving weather in near cities.")
-                    }
-
-                    for (item in list) {
-                        item.icon = getWeatherIcon(item.icon)
-                    }
-                    cityAdapter.submitList(list)
-                }
-            }
-        }
     }
 }
