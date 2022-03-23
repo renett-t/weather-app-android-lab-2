@@ -90,11 +90,13 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             })
         }
         viewModel.cityWeather.observe(viewLifecycleOwner) {
-            it.fold(onSuccess = { cityWeather ->
-                navigateToFragment(cityWeather.id)
-            }, onFailure = { ex ->
-                ex.message?.let { it1 -> showMessage(it1) }
-            })
+            if (it != null) {
+                it.fold(onSuccess = { cityWeather ->
+                    navigateToFragment(cityWeather.id)
+                }, onFailure = { ex ->
+                    ex.message?.let { it1 -> showMessage(it1) }
+                })
+            }
         }
     }
 
@@ -171,7 +173,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         Snackbar.make(
             requireActivity().findViewById(R.id.fragment_container),
             message,
-            Snackbar.LENGTH_LONG
+            Snackbar.LENGTH_SHORT
         ).show()
     }
 }

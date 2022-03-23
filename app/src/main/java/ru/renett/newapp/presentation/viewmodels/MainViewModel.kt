@@ -27,8 +27,8 @@ class MainViewModel(
     private var _citiesWeather: MutableLiveData<Result<MutableList<CitySimpleWeather>>> = MutableLiveData()
     val citiesWeather: LiveData<Result<MutableList<CitySimpleWeather>>> = _citiesWeather
 
-    private var _cityWeather: MutableLiveData<Result<CityDetailedWeather>> = MutableLiveData()
-    val cityWeather: LiveData<Result<CityDetailedWeather>> = _cityWeather
+    private var _cityWeather: SingleLiveEvent<Result<CityDetailedWeather>> = SingleLiveEvent<Result<CityDetailedWeather>>()
+    val cityWeather: SingleLiveEvent<Result<CityDetailedWeather>> = _cityWeather
 
     fun requestLocation() {
         viewModelScope.launch {

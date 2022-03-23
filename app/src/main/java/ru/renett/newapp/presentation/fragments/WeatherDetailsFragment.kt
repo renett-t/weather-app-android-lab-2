@@ -44,10 +44,6 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentWeatherDetailsBinding.bind(view)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         (activity as MainActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
