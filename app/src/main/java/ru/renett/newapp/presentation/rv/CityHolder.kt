@@ -28,7 +28,7 @@ class CityHolder (
         with(binding) {
             tvCity.text = city.name
             tvTemperature.setTextColor(getColorDependingOnDegree(city.temperature))
-            tvTemperature.text = city.temperature.toString()
+            tvTemperature.text = "${city.temperature}°"
             Glide.with(itemView).load(city.icon)
                 .centerCrop()
                 .into(ivWeatherIcon)

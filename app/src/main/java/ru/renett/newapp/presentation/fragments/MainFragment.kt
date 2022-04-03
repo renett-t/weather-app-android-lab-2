@@ -1,6 +1,7 @@
 package ru.renett.newapp.presentation.fragments
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -9,7 +10,6 @@ import android.view.View
 import android.widget.SearchView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -17,25 +17,24 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import ru.renett.newapp.R
 import ru.renett.newapp.databinding.FragmentMainBinding
-import ru.renett.newapp.domain.usecases.location.GetLocationUseCase
-import ru.renett.newapp.domain.usecases.weather.GetSimpleWeatherForCitiesUseCase
-import ru.renett.newapp.data.mapper.CityWeatherMapperImpl
-import ru.renett.newapp.data.repositories.LocationRepositoryImpl
-import ru.renett.newapp.data.repositories.WeatherRepositoryImpl
+import ru.renett.newapp.di.modules.adapter.AdapterFactory
 import ru.renett.newapp.domain.models.Coordinates
-import ru.renett.newapp.domain.usecases.weather.*
 import ru.renett.newapp.presentation.MainActivity
+import ru.renett.newapp.presentation.ext.appComponent
 import ru.renett.newapp.presentation.rv.CityAdapter
 import ru.renett.newapp.presentation.viewmodels.MainViewModel
-import ru.renett.newapp.presentation.viewmodels.ViewModelFactory
+import javax.inject.Inject
 
 class MainFragment : Fragment(R.layout.fragment_main) {
     private lateinit var binding: FragmentMainBinding
 
-    private lateinit var viewModel: MainViewModel
+    @Inject
+    lateinit var viewModel: MainViewModel
+    @Inject
+    lateinit var cityAdapterFactory: AdapterFactory
+    lateinit var cityAdapter: CityAdapter
 
     private lateinit var coordinates: Coordinates
-    private lateinit var cityAdapter: CityAdapter
     private val cityCount = 10
 
     private val locationPermissionLauncher =
@@ -44,6 +43,11 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             viewModel.requestCitiesWeather(coordinates, cityCount)
         }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        this.context?.appComponent?.inject(this)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMainBinding.bind(view)
@@ -51,7 +55,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             setDisplayHomeAsUpEnabled(false)
         }
 
-        initializeServices()
+        initializeRecycler()
         initObservers()
         initSearchBar()
     }
@@ -100,18 +104,8 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         }
     }
 
-    private fun initializeServices() {                 // instead of this should be di-container
-        val weatherRepository = WeatherRepositoryImpl(CityWeatherMapperImpl())
-        val factory = ViewModelFactory(
-            GetSimpleWeatherForCitiesUseCase(weatherRepository),
-            GetWeatherByNameUseCase(weatherRepository),
-            GetLocationUseCase(LocationRepositoryImpl(requireContext())),
-            GetWeatherByIdUseCase(weatherRepository),
-            GetWeatherIconUseCase(weatherRepository)
-        )
-        viewModel = ViewModelProvider(this, factory)[MainViewModel::class.java]
-
-        cityAdapter = CityAdapter { navigateToFragment(it) }
+    private fun initializeRecycler() {
+        cityAdapter = cityAdapterFactory.create { navigateToFragment(it) }
 
         binding.rvCities.apply {
             adapter = cityAdapter

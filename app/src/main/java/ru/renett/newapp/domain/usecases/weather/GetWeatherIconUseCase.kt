@@ -3,10 +3,10 @@ package ru.renett.newapp.domain.usecases.weather
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import ru.renett.newapp.domain.models.CityDetailedWeather
 import ru.renett.newapp.domain.repository.WeatherRepository
+import javax.inject.Inject
 
-class GetWeatherIconUseCase(
+class GetWeatherIconUseCase @Inject constructor(
     private val weatherRepository: WeatherRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
