@@ -1,22 +1,19 @@
 package ru.renett.newapp.data.repositories
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.location.Location
 import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import ru.renett.newapp.domain.models.Coordinates
 import ru.renett.newapp.domain.repository.LocationRepository
+import javax.inject.Inject
 
 private const val DEFAULT_LATITUDE = 55.776132
 private const val DEFAULT_LONGITUDE = 49.143041
-class LocationRepositoryImpl(
-    private val context: Context
-) : LocationRepository {
 
-    private val locationClient: FusedLocationProviderClient =
-        LocationServices.getFusedLocationProviderClient(context)
+class LocationRepositoryImpl @Inject constructor(
+    private val locationClient: FusedLocationProviderClient
+) : LocationRepository {
 
     @SuppressLint("MissingPermission")
     override fun getUserCurrentCoordinates(): Coordinates? {

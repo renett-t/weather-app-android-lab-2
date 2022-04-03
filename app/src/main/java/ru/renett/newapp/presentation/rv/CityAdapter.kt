@@ -3,9 +3,12 @@ package ru.renett.newapp.presentation.rv
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import ru.renett.newapp.domain.models.CitySimpleWeather
 
-class CityAdapter (
+class CityAdapter @AssistedInject constructor(
+    @Assisted("onItemChosenAction")
     private val onItemChosenAction: (Int) -> Unit
 ) : ListAdapter<CitySimpleWeather, CityHolder>(CityDiffUtilItemCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CityHolder =

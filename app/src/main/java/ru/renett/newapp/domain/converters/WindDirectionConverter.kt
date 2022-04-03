@@ -1,6 +1,8 @@
 package ru.renett.newapp.domain.converters
 
-class WindDirectionConverter {
+import javax.inject.Inject
+
+class WindDirectionConverter @Inject constructor()  {
 
     fun convertDegreeToDirection(degree: Double): String {
         return when (degree) {

@@ -8,8 +8,9 @@ import kotlinx.coroutines.launch
 import ru.renett.newapp.domain.models.CityDetailedWeather
 import ru.renett.newapp.domain.usecases.weather.GetWeatherByIdUseCase
 import ru.renett.newapp.domain.usecases.weather.GetWeatherIconUseCase
+import javax.inject.Inject
 
-class WeatherDetailsViewModel(
+class WeatherDetailsViewModel @Inject constructor(
     private val getCityWeatherById: GetWeatherByIdUseCase,
     private val getWeatherIcon: GetWeatherIconUseCase
 ) : ViewModel() {

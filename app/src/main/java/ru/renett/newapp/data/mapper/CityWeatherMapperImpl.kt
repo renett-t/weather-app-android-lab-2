@@ -4,8 +4,9 @@ import ru.renett.newapp.data.response.CityWeatherData
 import ru.renett.newapp.data.response.CityWeatherResponse
 import ru.renett.newapp.domain.models.CityDetailedWeather
 import ru.renett.newapp.domain.models.CitySimpleWeather
+import javax.inject.Inject
 
-class CityWeatherMapperImpl : CityWeatherMapper {
+class CityWeatherMapperImpl @Inject constructor() : CityWeatherMapper {
 
     override fun mapToCitySimpleWeather(response: CityWeatherData) = CitySimpleWeather(
         response.id,

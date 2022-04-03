@@ -6,8 +6,9 @@ import kotlinx.coroutines.withContext
 import ru.renett.newapp.domain.models.CityDetailedWeather
 import ru.renett.newapp.domain.repository.RepositoryException
 import ru.renett.newapp.domain.repository.WeatherRepository
+import javax.inject.Inject
 
-class GetWeatherByIdUseCase(
+class GetWeatherByIdUseCase @Inject constructor(
     private val weatherRepository: WeatherRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {

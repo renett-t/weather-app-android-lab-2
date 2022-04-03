@@ -13,8 +13,9 @@ import ru.renett.newapp.domain.usecases.weather.GetSimpleWeatherForCitiesUseCase
 import ru.renett.newapp.domain.usecases.weather.GetWeatherByNameUseCase
 import ru.renett.newapp.domain.usecases.weather.GetWeatherIconUseCase
 import java.lang.IllegalArgumentException
+import javax.inject.Inject
 
-class MainViewModel(
+class MainViewModel @Inject constructor(
     private val getCitiesWeather: GetSimpleWeatherForCitiesUseCase,
     private val getWeatherIcon: GetWeatherIconUseCase,
     private val getCityWeatherByName: GetWeatherByNameUseCase,

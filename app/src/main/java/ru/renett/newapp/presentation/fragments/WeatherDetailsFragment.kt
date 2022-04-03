@@ -1,54 +1,52 @@
 package ru.renett.newapp.presentation.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import ru.renett.newapp.R
-import ru.renett.newapp.data.mapper.CityWeatherMapperImpl
-import ru.renett.newapp.data.repositories.LocationRepositoryImpl
-import ru.renett.newapp.data.repositories.WeatherRepositoryImpl
 import ru.renett.newapp.databinding.FragmentWeatherDetailsBinding
 import ru.renett.newapp.domain.converters.DateConverter
 import ru.renett.newapp.domain.converters.WindDirectionConverter
 import ru.renett.newapp.domain.models.CityDetailedWeather
-import ru.renett.newapp.domain.usecases.location.GetLocationUseCase
-import ru.renett.newapp.domain.usecases.weather.GetSimpleWeatherForCitiesUseCase
-import ru.renett.newapp.domain.usecases.weather.GetWeatherByIdUseCase
-import ru.renett.newapp.domain.usecases.weather.GetWeatherByNameUseCase
-import ru.renett.newapp.domain.usecases.weather.GetWeatherIconUseCase
 import ru.renett.newapp.presentation.MainActivity
-import ru.renett.newapp.presentation.viewmodels.ViewModelFactory
+import ru.renett.newapp.presentation.ext.appComponent
 import ru.renett.newapp.presentation.viewmodels.WeatherDetailsViewModel
 import java.util.*
 import java.util.Locale.ENGLISH
+import javax.inject.Inject
 
 const val CITY_ID = "city_id"
 class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
-    private lateinit var viewModel : WeatherDetailsViewModel
+    @Inject
+    lateinit var windConverter: WindDirectionConverter
 
-    private val windConverter: WindDirectionConverter by lazy {
-        WindDirectionConverter()
-    }
+    @Inject
+    lateinit var dateConverter: DateConverter
 
-    private val dateConverter: DateConverter by lazy {
-        DateConverter()
-    }
+    @Inject
+    lateinit var viewModel : WeatherDetailsViewModel
 
     private lateinit var binding: FragmentWeatherDetailsBinding
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        this.context?.appComponent?.inject(this)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentWeatherDetailsBinding.bind(view)
+
         setHasOptionsMenu(true)
         (activity as MainActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
         }
-        initializeServices()
+
         initializeObservers()
 
         val cityId = arguments?.get(CITY_ID)
@@ -63,18 +61,6 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
                 showMessage("Sorry, unable to get information.")
             })
         }
-    }
-
-    private fun initializeServices() {
-        val weatherRepository = WeatherRepositoryImpl(CityWeatherMapperImpl())
-        val factory = ViewModelFactory(
-            GetSimpleWeatherForCitiesUseCase(weatherRepository),
-            GetWeatherByNameUseCase(weatherRepository),
-            GetLocationUseCase(LocationRepositoryImpl(requireContext())),
-            GetWeatherByIdUseCase(weatherRepository),
-            GetWeatherIconUseCase(weatherRepository)
-        )
-        viewModel = ViewModelProvider(this, factory)[WeatherDetailsViewModel::class.java]
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
