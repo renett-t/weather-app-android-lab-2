@@ -1,7 +1,6 @@
 package ru.renett.newapp.presentation.fragments
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -10,26 +9,28 @@ import android.view.View
 import android.widget.SearchView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.renett.newapp.R
 import ru.renett.newapp.databinding.FragmentMainBinding
 import ru.renett.newapp.di.modules.adapter.AdapterFactory
 import ru.renett.newapp.domain.models.Coordinates
 import ru.renett.newapp.presentation.MainActivity
-import ru.renett.newapp.presentation.ext.appComponent
 import ru.renett.newapp.presentation.rv.CityAdapter
 import ru.renett.newapp.presentation.viewmodels.MainViewModel
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainFragment : Fragment(R.layout.fragment_main) {
     private lateinit var binding: FragmentMainBinding
 
-    @Inject
-    lateinit var viewModel: MainViewModel
+    private val viewModel: MainViewModel by viewModels()
+
     @Inject
     lateinit var cityAdapterFactory: AdapterFactory
     lateinit var cityAdapter: CityAdapter
@@ -42,11 +43,6 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             viewModel.requestLocation()
             viewModel.requestCitiesWeather(coordinates, cityCount)
         }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        this.context?.appComponent?.inject(this)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

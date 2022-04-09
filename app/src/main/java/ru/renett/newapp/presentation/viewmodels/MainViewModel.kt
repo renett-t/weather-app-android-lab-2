@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.renett.newapp.domain.models.CityDetailedWeather
 import ru.renett.newapp.domain.models.CitySimpleWeather
@@ -15,6 +16,7 @@ import ru.renett.newapp.domain.usecases.weather.GetWeatherIconUseCase
 import java.lang.IllegalArgumentException
 import javax.inject.Inject
 
+@HiltViewModel
 class MainViewModel @Inject constructor(
     private val getCitiesWeather: GetSimpleWeatherForCitiesUseCase,
     private val getWeatherIcon: GetWeatherIconUseCase,
