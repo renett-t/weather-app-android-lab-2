@@ -3,5 +3,5 @@ package ru.renett.newapp.di.qualifiers
 import javax.inject.Qualifier
 
 @Qualifier
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.BINARY)
 annotation class UnitsInterceptor

@@ -20,7 +20,4 @@ class AppModule {
 
     @Provides
     fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
-
-//    @Provides
-//    fun providesContext(): Context = null
 }
