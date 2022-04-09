@@ -1,26 +1,27 @@
 package ru.renett.newapp.presentation.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.renett.newapp.R
 import ru.renett.newapp.databinding.FragmentWeatherDetailsBinding
 import ru.renett.newapp.domain.converters.DateConverter
 import ru.renett.newapp.domain.converters.WindDirectionConverter
 import ru.renett.newapp.domain.models.CityDetailedWeather
 import ru.renett.newapp.presentation.MainActivity
-import ru.renett.newapp.presentation.ext.appComponent
 import ru.renett.newapp.presentation.viewmodels.WeatherDetailsViewModel
 import java.util.*
 import java.util.Locale.ENGLISH
 import javax.inject.Inject
 
 const val CITY_ID = "city_id"
+@AndroidEntryPoint
 class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
     @Inject
     lateinit var windConverter: WindDirectionConverter
@@ -28,15 +29,9 @@ class WeatherDetailsFragment : Fragment(R.layout.fragment_weather_details) {
     @Inject
     lateinit var dateConverter: DateConverter
 
-    @Inject
-    lateinit var viewModel : WeatherDetailsViewModel
+    private val viewModel : WeatherDetailsViewModel by viewModels()
 
     private lateinit var binding: FragmentWeatherDetailsBinding
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        this.context?.appComponent?.inject(this)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

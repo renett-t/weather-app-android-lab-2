@@ -3,6 +3,8 @@ package ru.renett.newapp.di.modules
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -13,7 +15,7 @@ import ru.renett.newapp.BuildConfig
 import ru.renett.newapp.data.api.OpenWeatherApi
 import ru.renett.newapp.data.mapper.CityWeatherMapper
 import ru.renett.newapp.data.mapper.CityWeatherMapperImpl
-import javax.inject.Qualifier
+import ru.renett.newapp.di.qualifiers.*
 
 private const val BASE_URL = "https://api.openweathermap.org/"
 private const val API_KEY = "c1c30fed56d3fe139b4e672c13e1bfac"
@@ -22,6 +24,7 @@ private const val UNITS_VALUE = "metric"
 private const val UNITS_QUERY = "units"
 
 @Module(includes = [NetBindModule::class])
+@InstallIn(SingletonComponent::class)
 class NetModule {
 
     @Provides
@@ -85,16 +88,9 @@ class NetModule {
 }
 
 @Module
+@InstallIn(SingletonComponent::class)
 interface NetBindModule {
 
     @Binds
     fun provideCityWeatherMapper(cityWeatherMapperImpl: CityWeatherMapperImpl) : CityWeatherMapper
 }
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class ApiInterceptor
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class UnitsInterceptor
